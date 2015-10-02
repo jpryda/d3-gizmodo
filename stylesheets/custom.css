@@ -1,0 +1,99 @@
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: #fff;
+    margin: 20px;
+}
+
+.axis path, .axis line{
+    fill: none;
+    stroke: #777;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: 'Helvetica';
+    font-size: 12px;
+}
+
+.grid .tick {
+    stroke: lightgrey;
+    stroke-opacity: 0.4;
+    shape-rendering: crispEdges;
+}
+.grid path {
+    stroke-width: 0;
+}
+
+th, td {
+    padding: 15px;
+}
+
+#line-chart {
+   margin-left: 10px;   
+}
+
+.slice text {
+            font-size: 16pt;
+            font-family: Helvetica;
+}   
+
+.c3 svg g g.c3-axis.c3-axis-x {
+    font-family: 'Helvetica';
+    font-size: 12px;
+}
+
+.c3 svg g g.c3-axis.c3-axis-y {
+    font-family: 'Helvetica';
+    font-size: 12px;
+}
+
+h1, .h1, h2, .h2, h3, .h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+h4, .h4, h5, .h5, h6, .h6 {
+ margin-top 10px;
+ margin-bottom: 10px;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+}
+
+h1,
+.h1 {
+  font-size: 36px;
+}
+h2,
+.h2 {
+  font-size: 30px;
+}
+h3,
+.h3 {
+  font-size: 24px;
+}
+h4,
+.h4 {
+  font-size: 18px;
+}
+h5,
+.h5 {
+  font-size: 14px;
+}
+h6,
+.h6 {
+  font-size: 12px;
+}
+
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin-top: -20px;
+}

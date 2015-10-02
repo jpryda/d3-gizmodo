@@ -3,7 +3,7 @@ Spoon Task
 
 1. Start an http server
 
-On a mac open terminal and cd to the unzipped folder and execute:
+On a mac open terminal, cd to the unzipped folder and execute:
 
 'python SimpleAuthServer.py 8888 user:pass'
 

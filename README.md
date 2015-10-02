@@ -11,4 +11,4 @@ where you may specify a username/password to authenticate within the browser.
 (Without requiring authentication 'python -m SimpleHTTPServer 8888' will do).
 
 
-2. Access the site through the specified port e.g. http://localhost:8888/index.html
+2. Access the site through the specified port e.g. http://localhost:8888/index.html.  Refresh time is every 4s.

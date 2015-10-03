@@ -1,5 +1,3 @@
-var stackedChart;
-
 function initStackedBar() {
 
     var dataset_visits = jsonArray[jsonArray.length - 1].data.stats.visit.hist;
@@ -8,10 +6,7 @@ function initStackedBar() {
     var engaged_id = ["Engaged"];
     var spline_id = ["spline_engaged"];
 
-    console.log(d3.max(dataset_visits));
-    //console.log(d3.max(dataset_engaged_visits));
-    
-    stackedChart = c3.generate({
+    var stackedChart = c3.generate({
         bindto: "#stacked-bar",
         data: {
             x: "x",

@@ -61,13 +61,40 @@ td {
     font-size: 12px;
 }
 
+
+
+[tooltip]:before {
+    /* needed - do not touch */
+    content: attr(tooltip);
+    position: absolute;
+    opacity: 0;
+    
+    /* customizable */
+    transition: all 0.15s ease;
+    padding: 5px;
+    box-shadow: 2px 2px 1px silver;    
+}
+
+[tooltip]:hover:before {
+    /* needed - do not touch */
+    opacity: 1;
+    
+    /* customizable */
+    margin-top: -45px;
+    margin-left: 0px;    
+}
+
+[tooltip]:not([tooltip-persistent]):before {
+    pointer-events: none;
+}
+
 h1,
 .h1,
 h2,
 .h2,
 h3,
 .h3 {
-    margin-top: 20px;
+    margin-top: 10px;
     margin-bottom: 10px;
 }
 

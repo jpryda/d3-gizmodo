@@ -6,15 +6,6 @@ function initScatterChart() {
     dataset_recirc.push(jsonArray[jsonArray.length-1].data.stats.recirc);
     dataset_direct.push(jsonArray[jsonArray.length-1].data.stats.direct);
 
-//    for (i = 0; i < jsonArray.length; ++i) {
-//        dataset_recirc[i] = jsonArray[i].data.stats.recirc;
-//    }
-//
-//    for (i = 0; i < jsonArray.length; ++i) {
-//        dataset_direct[i] = jsonArray[i].data.stats.direct;
-//    }
-
-
     var scatter_id1 = ["recirc"];
     var scatter_id2 = ["direct"];
     //initStackedBar();
@@ -45,7 +36,7 @@ function initScatterChart() {
         axis: {
             x: {
                 label: {
-                    text: 'Recircling Concurrents',
+                    text: 'Recircling',
                     position: "outer-right"
                 },
                 tick: {
@@ -56,7 +47,7 @@ function initScatterChart() {
             },
             y: {
                 label: {
-                    text: "Direct Concurrents",
+                    text: "Direct",
                     position: "outer-top",
                 },
                 max: Math.ceil(d3.max(dataset_direct)/25)*25,

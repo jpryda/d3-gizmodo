@@ -10,7 +10,7 @@ On a mac open terminal, cd to the unzipped folder run the Python web server.  E.
   
 (Without authentication one can simply invoke 'python -m SimpleHTTPServer 8888' and navigating to the d3-gizmodo-master folder within the browser if necessary)
   
-2) Access the site through the specified port e.g. http://localhost:8888/index.html using the login information:
+2) Access the site through the specified port (e.g. 8888 from above) at http://localhost:8888/index.html using the login information:
 
   user: spoon
   pass: university

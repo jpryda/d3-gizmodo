@@ -4,20 +4,22 @@ function initStackedBar() {
 
     var dataset_visits = jsonArray[jsonArray.length - 1].data.stats.visit.hist;
     var dataset_engaged_visits = jsonArray[jsonArray.length - 1].data.stats.engaged_visit.hist;
-    var test3 = ["Total"];
-    var test4 = ["Engaged"];
-    var test5 = ["spline_engaged"];
-    //dataset_visits_hist = dataset_visits_hist.unshift('data 1');
+    var total_id = ["Total"];
+    var engaged_id = ["Engaged"];
+    var spline_id = ["spline_engaged"];
 
+    console.log(d3.max(dataset_visits));
+    //console.log(d3.max(dataset_engaged_visits));
+    
     stackedChart = c3.generate({
         bindto: "#stacked-bar",
         data: {
             x: "x",
             columns: [
-                    ["x", 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 10.0, 15.0, "30.0+"],
-                    test3.concat(dataset_visits),
-                    test4.concat(dataset_engaged_visits),
-                    test5.concat(dataset_engaged_visits),
+                    ["x", 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 10.0, 15.0, 30, "30.0+"],
+                    total_id.concat(dataset_visits),
+                    engaged_id.concat(dataset_engaged_visits),
+                    spline_id.concat(dataset_engaged_visits),
                 ],
             type: 'bar',
             colors: {
@@ -28,9 +30,9 @@ function initStackedBar() {
             types: {
                 spline_engaged: "spline"
             },
-            groups: [
-                    ['Total', 'Engaged']
-                ],
+//            groups: [
+//                    ['Total', 'Engaged']
+//                ],
             labels: {
                 format: {
                     Total: function (v) {
@@ -52,7 +54,19 @@ function initStackedBar() {
                     text: "Quantized Time on Site / mins",
                     position: "outer-right"
                 }
+            },
+            y: {
+                label: {
+                    text: "Visits",
+                    position: "outer-top",
+                },
+                max: Math.ceil((d3.max(dataset_visits))/100)*100
             }
+        },
+        bar: {
+            width: {
+                ratio: 0.9,
+            },
         },
         size: {
             width: WIDTH1,

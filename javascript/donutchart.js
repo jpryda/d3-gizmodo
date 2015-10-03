@@ -28,7 +28,7 @@ function initDonutChart() {
             }
         },
         donut: {
-            title: "Just That"
+            title: "Traffic Breakdown"
         },
         size: {
             width: WIDTH0,

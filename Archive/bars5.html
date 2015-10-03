@@ -1,0 +1,339 @@
+<!-- To start local HTTP server: python -m SimpleHTTPServer 8888 & -->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Gizmodo Top Pages (Chartbeat Data)</title>
+		<script type="text/javascript" src="javascript/d3.v3.js"></script>
+        <script type="text/javascript" src="javascript/jquery-1.11.3.js"></script>
+        <script type="text/javascript" src="javascript/crossfilter.js"></script>
+        <script type="text/javascript" src="javascript/bootstrap.js"></script>
+        <script type="text/javascript" src="javascript/dc.js"></script>
+        <script type="text/javascript" src="javascript/linechart.js"></script>
+        
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link type="text/css" href="stylesheets/bootstrap.css" rel="stylesheet">
+        <link type="text/css" href="stylesheets/dc.css" rel="stylesheet">
+        <style type="text/css">
+            body { margin: 8px; }  
+            .axis path, .axis line{
+                fill: none;
+                stroke: #777;
+                shape-rendering: crispEdges;
+            }
+        
+            .axis text {
+                font-family: 'Helvetica';
+                font-size: 12px;
+            }
+            
+            .grid .tick {
+                stroke: lightgrey;
+                stroke-opacity: 0.4;
+                shape-rendering: crispEdges;
+            }
+            .grid path {
+                stroke-width: 0;
+            }
+            
+            th, td {
+                padding: 15px;
+            }
+            
+        </style>
+        
+	</head>
+	<body>
+        
+        <h2> Gizmodo Real-Time Stats</h2>
+        <table class="mainTable" style="width:100%">
+        <br>
+            
+        <tr>
+        <td>    
+            <h4> Current Visitors to Top Pages</h4>          
+		<script type="text/javascript">
+            
+            // globals
+            var numVisitors = [];
+            var pageString = [];
+            var maxVisitors;
+            var jsonArray;
+
+            // Width and height
+            var WIDTH0 = 250; // Width of first chart svg
+            var h = 450;
+            var scalefactor = 3/4*h;
+            var barPadding = 2;
+
+            //Create SVG element and add to DOM
+            var svg = d3.select("tr td:first-child")
+                .append("svg")
+                .attr("width", WIDTH0)
+                .attr("height", h);
+
+            localStorage.clear();
+            buildChart();
+            var refreshId = setInterval(buildChart, 5000);
+
+            function buildChart() {
+                // Load chartbeat data
+                jsonURL = "https://dashapi.chartbeat.com/live/quickstats/v4/?all_platforms=1&apikey=317a25eccba186e0f6b558f45214c0e7&host=gizmodo.com&loyalty=1&now_on=1&types=1";
+                d3.json(jsonURL, function(error, json) {
+                    if (error) return console.warn(error);
+                    
+                    // Add timestamps to object
+                    var time = new Date();
+                    json.timestamp_s = Math.floor(Date.now() / 1000) % (24 * 3600);
+                    json.timestamp_formatted = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+                    
+                    jsonArray = JSON.parse(localStorage.getItem('gizmodoJsonArray')) || [];
+                    jsonArray.push(json);
+                    localStorage.setItem('gizmodoJsonArray', JSON.stringify(jsonArray));
+
+                    dataset_toppages = json.data.stats.toppages;
+                    //for (i = 0; i < dataset_toppages.length; i++) {
+                    //    numVisitors[i] = dataset_toppages[i].visitors;
+                    //    var path = dataset_toppages[i].path.split("-");
+                    //    pageString[i] = path[path.length - 1];
+                    // }
+                    maxVisitors = d3.max(dataset_toppages, function (d) { return d.visitors } );
+
+                    // Clean canvas before updating
+                    d3.selectAll("svg > *").remove();
+                    
+                    // Draw rectangles
+                    var svgRectData = svg.selectAll("rect")
+                        .data(dataset_toppages)
+                        .enter()
+                        .append("rect");
+
+                    svgRectData.attr("x", function(d, i) {
+                            return i * (WIDTH0 / dataset_toppages.length);
+                        })
+                        .attr("y", function(d) {
+                            return scalefactor - (d.visitors / maxVisitors) * scalefactor; // SVG draws downwards from y
+                        })
+                        .attr("width", WIDTH0 / dataset_toppages.length - barPadding)
+                        .attr("height", function(d) {
+                            return (d.visitors / maxVisitors) * scalefactor;
+                        });
+
+                    
+                    
+                    // Add Numbers
+                    var svgNumText = svg.selectAll("text")
+                        .data(dataset_toppages)
+                        .enter()
+                        .append("text")
+                        .text(function(d) {
+                            return d.visitors;
+                        })
+                        .attr("x", function(d, i) {
+                            return i * (WIDTH0 / dataset_toppages.length) + 5;
+                        })
+                        .attr("y", function(d) {
+                            return scalefactor - (d.visitors / maxVisitors) * scalefactor + 15;
+                        })
+                        .attr("font-family", "Helvetica Neue")
+                        .attr("font-size", "12px")
+                        .attr("fill", "white");
+                    
+                    var svgPageText = svg.selectAll()
+                        .data(dataset_toppages)
+                        .enter()
+                        .append("text")
+                        .text(function(d,i) {
+                            var path = dataset_toppages[i].path.split("-");
+                            return path[path.length - 1];
+                        })
+                        .attr("x", function(d, i) {
+                            return i * (WIDTH0 / dataset_toppages.length) + 5;
+                        })
+                        .attr("y", h - 95)
+                        .attr("font-size", "10px")
+                        .attr("transform-origin", "0% 0%") 
+                        .attr("transform", "rotate(1)");                     
+                          
+                    //
+                    // Line Graph
+                    InitChart();
+
+//                    function InitChart() {
+//                      
+//                      var svgLine = d3.select("#line-graph"),
+//                        WIDTH = 700,
+//                        HEIGHT = h,
+//                        MARGINS = {
+//                          top: 20,
+//                          right: 20,
+//                          bottom: 20,
+//                          left: 50
+//                        }
+//                          
+//                         
+//                        xRange = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right])
+//                                    .domain([jsonArray[0].timestamp_s, Math.ceil(d3.max(jsonArray, function (d) {
+//                                        return d.timestamp_s; 
+//                                    })/100) * 100
+//                        ]),
+//                          
+//                        yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom])
+//                                    .domain([Math.floor(d3.min(jsonArray, function (d) {
+//                                        return d.data.stats.toppages[4].visitors;
+//                                    })/100) * 100, Math.ceil(d3.max(jsonArray, function (d) {
+//                                        return d.data.stats.toppages[0].visitors;
+//                                    })/100) * 100
+//                        ]),
+//
+//                        xAxis = d3.svg.axis()
+//                          .scale(xRange)
+//                          .tickSize(5)
+//                          .tickSubdivide(false),
+//
+//                        yAxis = d3.svg.axis()
+//                          .scale(yRange)
+//                          .tickSize(5)
+//                          .orient("left")
+//                          .tickSubdivide(true);  
+//                        
+//                      svgLine.append("g")
+//                        .attr("class", "x axis")
+//                        .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+//                        .call(xAxis);
+//
+//                      svgLine.append("g")
+//                        .attr("class", "y axis")
+//                        .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+//                        .call(yAxis);
+//   
+//                      
+//                      // Line generator function    
+//                      var lineFunc0 = d3.svg.line()
+//                      .x(function (d) {
+//                        return xRange(d.timestamp_s);
+//                      })
+//                      .y(function (d) {
+//                        return yRange(d.data.stats.toppages[0].visitors);
+//                      })
+//                      .interpolate('linear');
+//                        
+//                      var lineFunc1 = d3.svg.line()
+//                      .x(function (d) {
+//                        return xRange(d.timestamp_s);
+//                      })
+//                      .y(function (d) {
+//                        return yRange(d.data.stats.toppages[1].visitors);
+//                      })
+//                      .interpolate('linear');
+//                        
+//                      var lineFunc2 = d3.svg.line()
+//                      .x(function (d) {
+//                        return xRange(d.timestamp_s);
+//                      })
+//                      .y(function (d) {
+//                        return yRange(d.data.stats.toppages[2].visitors);
+//                      })
+//                      .interpolate('linear');
+//                        
+//                      var lineFunc3 = d3.svg.line()
+//                      .x(function (d) {
+//                        return xRange(d.timestamp_s);
+//                      })
+//                      .y(function (d) {
+//                        return yRange(d.data.stats.toppages[3].visitors);
+//                      })
+//                      .interpolate('linear');     
+//                        
+//                      var lineFunc4 = d3.svg.line()
+//                      .x(function (d) {
+//                        return xRange(d.timestamp_s);
+//                      })
+//                      .y(function (d) {
+//                        return yRange(d.data.stats.toppages[4].visitors);
+//                      })
+//                      .interpolate('linear');    
+//                            
+//                    svgLine.append("path")
+//                      .attr("d", lineFunc0(jsonArray))
+//                      .attr("stroke", "blue")
+//                      .attr("stroke-width", 3)
+//                      .attr("fill", "none");
+//                        
+//                    svgLine.append("path")
+//                      .attr("d", lineFunc1(jsonArray))
+//                      .attr("stroke", "red")
+//                      .attr("stroke-width", 3)
+//                      .attr("fill", "none");
+//                        
+//                    svgLine.append("path")
+//                      .attr("d", lineFunc2(jsonArray))
+//                      .attr("stroke", "orange")
+//                      .attr("stroke-width", 3)
+//                      .attr("fill", "none");
+//                        
+//                    svgLine.append("path")
+//                      .attr("d", lineFunc3(jsonArray))
+//                      .attr("stroke", "purple")
+//                      .attr("stroke-width", 3)
+//                      .attr("fill", "none");
+//                        
+//                    svgLine.append("path")
+//                      .attr("d", lineFunc4(jsonArray))
+//                      .attr("stroke", "green")
+//                      .attr("stroke-width", 3)
+//                      .attr("fill", "none");     
+//                    
+//                                        // function for the x grid lines
+//                    function make_x_axis() {
+//                        return d3.svg.axis()
+//                            .scale(xRange)
+//                            .orient("bottom")
+//                            .ticks(5)
+//                    }
+//
+//                    // function for the y grid lines
+//                    function make_y_axis() {
+//                      return d3.svg.axis()
+//                          .scale(yRange)
+//                          .orient("left")
+//                          .ticks(5)
+//                    }
+//                    
+//                    // Draw the x Grid lines
+//                    svgLine.append("g")
+//                        .attr("class", "grid")
+//                        .attr("transform", "translate(0," + HEIGHT + ")")
+//                        .call(make_x_axis()
+//                            .tickSize(-HEIGHT, 0, 0)
+//                            .tickFormat("")
+//                        )
+//
+//                    // Draw the y Grid lines
+//                    svgLine.append("g")            
+//                        .attr("class", "grid")
+//                        .call(make_y_axis()
+//                            .tickSize(-WIDTH, 0, 0)
+//                            .tickFormat("")
+//                    )
+//    
+//                    }
+                           
+                });
+                
+            }
+		</script>
+        
+        </td>
+        <td>
+            <h4>Real-Time Visitors to Top Pages</h4>
+            <svg id="line-graph" width="700" height="450"></svg>
+        </td>
+        
+            
+        </tr>    
+        </table>  
+        
+	</body>
+</html>

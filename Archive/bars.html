@@ -1,0 +1,107 @@
+<!-- To start local HTTP server: python -m SimpleHTTPServer 8888 & -->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>D3 Demo: 5-div bar chart</title>
+		<script type="text/javascript" src="javascript/d3.v3.js"></script>
+		<style type="text/css">
+		
+			div.bar {
+				display: inline-block;
+				width: 15px;
+				height: 75px;	/* Gets overriden by D3-assigned height below */
+				margin-right: 2px;
+				background-color: teal;
+			}
+		
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript">
+            
+            //Width and height
+            var w = 500;
+            var h = 50;
+		
+			var dataset = [];                        //Initialize empty array
+            for (var i = 0; i < 3; i++) {           //Loop 24 times
+                var newNumber = Math.random() * 30;  //New random number (0-30)
+                dataset.push(newNumber);             //Add new number to array
+            }
+			
+        // Draw barchart
+			var divBar = d3.select("body")             // Finds body in DOM & hands on ref 
+                .selectAll("div")         // Returns empty selection of divs in body that will soon exist
+				.data(dataset)            // Parses data values and binds them to elements we're about to create 
+				.enter()                  // Creates placeholder elements (for new data-bound elements)
+				.append("div")            // Takes the placeholder selection created by enter() and inserts a element into the DOM
+				.attr("class", "bar")
+				.style("height", function(derp) {
+					var barHeight = derp * 5;
+					return barHeight + "px";
+				});
+            
+            
+            setTimeout(function() {
+                dataset.push(Math.random() * 30);             //Add new number to array
+                dataset[0]=Math.random() * 30;
+                
+                // Makes no difference
+                d3.select("body")             // Finds body in DOM & hands on ref 
+                .selectAll("div")         // Returns empty selection of divs in body that will soon exist
+				.data(dataset)            // Parses data values and binds them to elements we're about to create 
+				.enter()                  // Creates placeholder elements (for new data-bound elements)
+				.append("div")            // Takes the placeholder selection created by enter() and inserts a element into the DOM
+				.attr("class", "bar")
+				.style("height", function(derp) {
+					var barHeight = derp * 5;
+					return barHeight + "px";
+				});
+                
+                
+                // Makes a difference
+                divBar.data(dataset)
+                .enter()
+                .append("div")
+                .attr("class", "bar");
+                    
+                
+//                .data(dataset)
+//                .enter()                  // Creates placeholder elements (for new data-bound elements)
+//				.append("div")            // Takes the placeholder selection created by enter() and inserts a element into the DOM
+//				.attr("class", "bar")
+//				.style("height", function(derp) {
+//					var barHeight = derp * 5;
+//					return barHeight + "px";
+//				});
+//                console.log("reached");
+            },1000);
+            
+            
+        // Create SVG
+            var svg = d3.select("body")
+            .append("svg") // svg reference handed back by append
+            .attr("width", w)
+            .attr("height", h)
+            
+            
+            var small_dataset = [ 5, 10, 15, 20, 25 ];
+            
+            var circles = svg.selectAll("circle")  // Returns empty refs to non-existent circles
+            .data(small_dataset)           // Binds data to elements we're about to create
+            .enter()                 // Returns placeholder ref to new element
+            .append("circle");       // Adds circle to DOM
+            
+            circles.attr("cx", function(derp, i) { // derp matches corresponding element value and i matches its index
+                return (i * 50) + 25;
+            })
+            .attr("cy", h/2)
+            .attr("r", function(derp) {
+                return derp;
+            });
+			
+		</script>
+	</body>
+</html>

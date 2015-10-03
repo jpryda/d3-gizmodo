@@ -34,6 +34,7 @@ function initScatterChart() {
         },
         padding: {
             right: 5,
+            top: 5,
         },
         legend: {
             show: false,
@@ -49,7 +50,10 @@ function initScatterChart() {
                 }
             },
             y: {
-                label: 'Direct Concurrents'
+                label: {
+                    text: "Direct Concurrents",
+                    position: "outer-top",
+                },
             },
         },
         transition: {

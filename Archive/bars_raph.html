@@ -1,0 +1,31 @@
+<!-- To start local HTTP server: python -m SimpleHTTPServer 8888 & -->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Gizmodo Top Pages (Chartbeat Data)</title>
+        <script src="raphael-min.js"></script>
+        <script src="jquery-1.11.3.js"></script>
+        <script type="text/javascript" src="g.raphael-min.js"></script>
+        <script type="text/javascript" src="g.pie-min.js"></script>
+
+        
+		<style type="text/css"></style>
+	</head>
+	<body>
+        
+        <div>
+		<script type="text/javascript">
+            
+                var r = Raphael(10, 50, 640, 480);
+// Creates pie chart at with center at 320, 200,
+// radius 100 and data: [55, 20, 13, 32, 5, 1, 2]
+r.piechart(320, 240, 100, [55, 20, 13, 32, 5, 1, 2]);
+            
+            
+		</script>
+        </div>
+        
+	</body>
+</html>

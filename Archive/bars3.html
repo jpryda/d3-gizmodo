@@ -1,0 +1,151 @@
+<!-- To start local HTTP server: python -m SimpleHTTPServer 8888 & -->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Gizmodo Top Pages (Chartbeat Data)</title>
+		<script type="text/javascript" src="javascript/d3.v3.js"</script>
+        <script type="text/javascript" src="javascript/jquery-1.11.3.js"</script>
+ 
+        
+		<style type="text/css"></style>
+	</head>
+	<body>
+        
+        <div>
+		<script type="text/javascript">
+            
+            // a global
+            var numVisitors = [];
+            var pageString = [];
+            var maxVisitors;
+            
+            // Width and height
+			var w = 280;
+			var h = 350;
+            var scalefactor = 300;
+			var barPadding = 2;
+            
+             //Create SVG element and add to DOM
+            var svg = d3.select("body")
+                            .append("svg")
+                            .attr("width", w)
+                            .attr("height", h);
+            
+            buildChart();
+            var refreshId = setInterval(refreshChart,1000);
+            
+            function getData(){
+             
+                var jsonURL = "https://dashapi.chartbeat.com/live/quickstats/v4/?all_platforms=1&apikey=317a25eccba186e0f6b558f45214c0e7&host=gizmodo.com&loyalty=1&now_on=1&types=1";
+                d3.json(jsonURL, function(error, json) {
+                    if (error) return console.warn(error);
+
+                    localStorage.setItem('gizmodoState', JSON.stringify(json));
+                                         
+                    dataset = json.data.stats.toppages;
+
+                    for (i = 0; i < dataset.length; i++) { 
+                        numVisitors[i] = dataset[i].visitors;
+                        pageString[i] = dataset[i].path;
+                    }
+
+                    maxVisitors = d3.max(numVisitors);    
+                });
+            }
+            
+            
+            function buildChart(){
+                // Load chartbeat data
+                
+                var jsonURL = "https://dashapi.chartbeat.com/live/quickstats/v4/?all_platforms=1&apikey=317a25eccba186e0f6b558f45214c0e7&host=gizmodo.com&loyalty=1&now_on=1&types=1";
+                d3.json(jsonURL, function(error, json) {
+                    if (error) return console.warn(error);
+                    
+                    dataset = json.data.stats.toppages;
+                    localStorage.setItem('gizmodoState', JSON.stringify(json));
+
+                    for (i = 0; i < dataset.length; i++) { 
+                        numVisitors[i] = dataset[i].visitors;
+                        pageString[i] = dataset[i].path;
+                    }
+
+                    maxVisitors = d3.max(numVisitors);  
+
+                    svg.selectAll("rect")
+                       .data(numVisitors)
+                       .enter()
+                       .append("rect")
+                       .attr("x", function(d, i) {
+                            return i * (w / numVisitors.length);
+                       })
+                       .attr("y", function(d) {
+                            return h - (d/maxVisitors) * scalefactor;
+                       })
+                       .attr("width", w / numVisitors.length - barPadding)
+                       .attr("height", function(d) {
+                            return (d/maxVisitors) * scalefactor;
+                       });
+                
+
+                    svg.selectAll("text")
+                       .data(numVisitors)
+                       .enter()
+                       .append("text")
+                       .text(function(d) {
+                            return d;
+                        })
+                       .attr("x", function(d, i) {
+                            return i * (w / numVisitors.length) + 5;  
+                        })
+                       .attr("y", function(d) {
+                            return h - (d/maxVisitors) * scalefactor + 15;              
+                        })
+                       .attr("font-family", "Helvetica Neue")
+                       .attr("font-size", "12px")
+                       .attr("fill", "white");
+                                
+                    });
+
+            }
+            
+            function refreshChart(){
+                    getData();
+
+                    svg.selectAll("rect")
+                       .data(numVisitors)
+                       .attr("x", function(d, i) {
+                            return i * (w / numVisitors.length);
+                       })
+                       .attr("y", function(d) {
+                            return h - (d/maxVisitors) * scalefactor;
+                       })
+                       .attr("width", w / numVisitors.length - barPadding)
+                       .attr("height", function(d) {
+                            return (d/maxVisitors) * scalefactor;
+                       });
+
+                    svg.selectAll("text")
+                       .data(numVisitors)
+                       .text(function(d) {
+                               return d;
+                        })
+                       .attr("x", function(d, i) {
+                            return i * (w / numVisitors.length) + 5;  
+                        })
+                       .attr("y", function(d) {
+                            return h - (d/maxVisitors) * scalefactor + 15;              
+                        })
+                       .attr("font-family", "Helvetica Neue")
+                       .attr("font-size", "12px")
+                       .attr("fill", "white");
+             
+                    //});
+            }
+            
+		</script>
+        </div>
+        
+	</body>
+</html>

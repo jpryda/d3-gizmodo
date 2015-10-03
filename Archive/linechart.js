@@ -8,17 +8,17 @@ function initLineChart() {
         .attr("width", WIDTH1)
         .attr("height", HEIGHT1 + 40);
 
-    xRange = d3.scale.linear().range([MARGINS.left, WIDTH1 - MARGINS.right])
+    xRange = d3.time.scale.utc().scale.linear().range([MARGINS.left, WIDTH1 - MARGINS.right])
         .domain([jsonArray[0].timestamp_s, Math.ceil(d3.max(jsonArray, function (d) {
                 return d.timestamp_s;
             }) / 150) * 150
         ]),
-
-        //        xRange2 = d3.time.scale.rangeRound([MARGINS.left, WIDTH1 - MARGINS.right])
-        //                    .domain([jsonArray[0].timestamp_utc, Math.ceil(d3.max(jsonArray, function (d) {
-        //                        return d.timestamp_utc; 
-        //                    })/150) * 150
-        //        ]),    
+        
+    xRange2 = d3.time.scale.utc().range([MARGINS.left, WIDTH1 - MARGINS.right])
+        .domain([jsonArray[0].timestamp_utc, d3.max(jsonArray, function (d) {
+                return d.timestamp_utc;
+            })
+        ]),
 
         yRange = d3.scale.linear().range([HEIGHT1 - MARGINS.top, MARGINS.bottom])
         .domain([Math.floor(d3.min(jsonArray, function (d) {

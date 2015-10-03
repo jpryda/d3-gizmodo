@@ -9,7 +9,7 @@
     <title>Gizmodo Top Pages (Chartbeat Data)</title>
     <script type="text/javascript" src="javascript/d3.v3.js"></script>
     <script type="text/javascript" src="javascript/c3.js"></script>
-    <script type="text/javascript" src="javascript/linechart.js"></script>
+    <script type="text/javascript" src="javascript/linechart3.js"></script>
     <script type="text/javascript" src="javascript/piechart.js"></script>
     <script type="text/javascript" src="javascript/stacked-bar.js"></script>
     <script type="text/javascript" src="javascript/scatter-chart.js"></script>
@@ -24,17 +24,18 @@
 
 <body>
 
-
-    <h2> Gizmodo Real-Time Stats</h2>
-    <table class="mainTable" style="width:100%">
+    <table id="maintable">
+    
         <tr>
+            <td id="title"><div><h2> Gizmodo Real-Time Stats</h2></div>    </td>
+        </tr>
             <td>
                 <h4> Current Visitors to Top Pages</h4>
                 <br>
                 <div id="bar1">
                 </div>
             </td>
-            <td>
+            <td class="secondcol">
                 <h4>Real-Time Visitors to Top Pages</h4>
                 <br>
                 <div id="line-chart"></div>
@@ -48,7 +49,7 @@
                     <div id="pie"></div>
                 </td>
 
-                <td>
+                <td class="secondcol">
                     <h4>Recircling vs Direct Sources</h4>
                     <br>
                     <div id="scatter"></div>
@@ -62,13 +63,14 @@
                     <div id="donut"></div>
                 </td>
 
-                <td>
+                <td class="secondcol">
                     <h4>Proportion of Engaged Visits</h4>
                     <div id="stacked-bar"></div>
                 </td>
-
-            </tr>
+            </tr>        
     </table>
+    <br>
+    <div align="center"> Metric data pulled from <a href="https://dashapi.chartbeat.com/live/quickstats/v4/?all_platforms=1&apikey=317a25eccba186e0f6b558f45214c0e7&host=gizmodo.com&loyalty=1&now_on=1&types=1">Chartbeat API</a></div>
 
     <script type="text/javascript">
         // globals
@@ -77,9 +79,18 @@
         var maxVisitors;
         var jsonArray;
         var color = d3.scale.category10();
+        var dataset_toppages = [];
+        var article = [];
+        
+        var dataset_one = [];
+        var dataset_two = [];
+        var dataset_three = [];
+        var dataset_four = [];
+        var dataset_five = [];
+        var dataset_time = [];
 
         // 1st column dimensions
-        var WIDTH0 = 250; // Width of first chart svg
+        var WIDTH0 = 250; 
         var HEIGHT0 = 350;
         var scalefactor = 3 / 4 * HEIGHT0;
         var barPadding = 2;
@@ -87,6 +98,8 @@
         // 2nd column dimensions
         var WIDTH1 = 680,
             HEIGHT1 = HEIGHT0 - 40,
+            
+        // Margins for custom line graph
             MARGINS = {
                 top: 20,
                 right: 20,
@@ -97,38 +110,42 @@
         //Create SVG element and add to DOM
         var svg = d3.select("#bar1")
             .append("svg")
-            .attr("width", WIDTH0)
+            .attr("width", WIDTH0 + 20)
             .attr("height", HEIGHT0);
 
         localStorage.clear();
-        buildChart();
-        var refreshId = setInterval(buildChart, 4000);
+        buildCharts();
+        var refreshId = setInterval(buildCharts, 4000);
 
 
-
-
-
-        function buildChart() {
+        function buildCharts() {
             // Load chartbeat data
             jsonURL = "https://dashapi.chartbeat.com/live/quickstats/v4/?all_platforms=1&apikey=317a25eccba186e0f6b558f45214c0e7&host=gizmodo.com&loyalty=1&now_on=1&types=1";
             d3.json(jsonURL, function (error, json) {
                 if (error) return console.warn(error);
 
                 // Add timestamps to object
-                var time = new Date();
-                json.timestamp_s = Math.floor(Date.now() / 1000) % (24 * 3600);
-                json.timestamp_utc = Math.floor(Date.now() / 1000);
-                json.timestamp_formatted = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+                json.timestamp_s = Math.floor(Date.now());
 
                 jsonArray = JSON.parse(localStorage.getItem('gizmodoJsonArray')) || [];
                 jsonArray.push(json);
                 localStorage.setItem('gizmodoJsonArray', JSON.stringify(jsonArray));
 
                 dataset_toppages = json.data.stats.toppages;
+                
                 maxVisitors = d3.max(dataset_toppages, function (d) {
                     return d.visitors
                 });
-
+                
+                for (i=0; i<dataset_toppages.length; ++i) {
+                    var split_path = dataset_toppages[i].path.split("-");
+                    if (split_path[split_path.length - 1] == "/") {
+                            article[i] = "Home";
+                        } else {
+                            article[i] = "/" + split_path[split_path.length - 1];
+                        }
+                }    
+                
                 // Clean all SVG canvases before updating. N.B Sometimes svg iteslef needs removing.
                 d3.selectAll("svg > *").remove();
 
@@ -175,21 +192,16 @@
                     .enter()
                     .append("text")
                     .text(function (d, i) {
-                        var path = dataset_toppages[i].path.split("-");
-                        if (path[path.length - 1] == "/") {
-                            return "Home"
-                        } else {
-                            return path[path.length - 1];
-                        }
+                        return article[i];
                     })
                     //                        .attr("fill", function(d, i) {
                     //                            return color(i);
                     //                        })
-                    .attr("font-size", "10px")
+                    .attr("font-size", "11px")
                     .attr("transform", function (d, i) { // All transfomrations done under transform if introduced
                         return "translate(" + // Translate
                             (i * (WIDTH0 / dataset_toppages.length) + 20) + "," + (scalefactor + 10) + ") " +
-                            "rotate(65)" // Then Rotate
+                            "rotate(45)" // Then Rotate
                     });
 
                 // Add the text label for the x axis
@@ -201,7 +213,7 @@
 
 
                 // Line Graph
-                initLineChart();
+                initLineChart3();
 
                 // Pie Chart
                 //initPieChart();\
@@ -215,6 +227,7 @@
 
                 // Donut Chart
                 initDonutChart();
+            
 
             });
 

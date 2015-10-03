@@ -1,0 +1,207 @@
+<!-- To start local HTTP server: python -m SimpleHTTPServer 8888 & -->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Gizmodo Top Pages (Chartbeat Data)</title>
+		<script type="text/javascript" src="javascript/d3.v3.js"></script>
+        <script type="text/javascript" src="javascript/jquery-1.11.3.js"></script>
+        <script type="text/javascript" src="javascript/crossfilter.js"></script>
+        <script type="text/javascript" src="javascript/bootstrap.js"></script>
+        <script type="text/javascript" src="javascript/c3.js"></script>
+        <script type="text/javascript" src="javascript/linechart.js"></script>
+        <script type="text/javascript" src="javascript/piechart.js"></script>
+        
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link type="text/css" href="stylesheets/bootstrap.css" rel="stylesheet">
+        <link type="text/css" href="stylesheets/c3.css" rel="stylesheet">
+        <link type="text/css" href="stylesheets/custom.css" rel="stylesheet">
+	</head>
+	<body>
+        
+        
+        <h2> Gizmodo Real-Time Stats</h2><br>
+<!--
+        <div class=slider>
+        Duration: 0 - 10s<input type="range" id="duration" min="0" max="10000">
+        </div>
+-->
+    
+        <table class="mainTable" style="width:100%">
+        <tr>
+        <td><div id="bar1">    
+            <h4> Current Visitors to Top Pages</h4><br>              
+            </div>
+        </td>
+        <td>
+            <h4>Real-Time Visitors to Top Pages</h4><br>
+            <div id="line-chart"></svg>
+            <!-- <svg id="line-chart" width="700" height="450"></svg> -->
+        </td>
+        
+            <tr>
+                <td>
+                    <h4>Platforms Engaged</h4><br>
+                    <div id="pie">                    
+                    </div>
+                </td>
+                
+                <td>
+                    <h4>Proportion of Engaged Users</h4>
+                    <div id="chart">
+                    </div>
+                </td>
+            
+            </tr>
+            
+        </tr>    
+        </table>  
+        
+    <script type="text/javascript">
+            
+            // globals
+            var numVisitors = [];
+            var pageString = [];
+            var maxVisitors;
+            var jsonArray;
+            var color = d3.scale.category10();   
+
+            // Width and height
+            var WIDTH0 = 250; // Width of first chart svg
+            var HEIGHT0 = 450;
+            var scalefactor = 3/4*HEIGHT0;
+            var barPadding = 2;
+
+            //Create SVG element and add to DOM
+            var svg = d3.select("#bar1")
+                .append("svg")
+                .attr("width", WIDTH0)
+                .attr("height", HEIGHT0);
+
+            localStorage.clear();
+            buildChart();
+            var refreshId = setInterval(buildChart, 4000);
+
+            function buildChart() {
+                // Load chartbeat data
+                jsonURL = "https://dashapi.chartbeat.com/live/quickstats/v4/?all_platforms=1&apikey=317a25eccba186e0f6b558f45214c0e7&host=gizmodo.com&loyalty=1&now_on=1&types=1";
+                d3.json(jsonURL, function(error, json) {
+                    if (error) return console.warn(error);
+                    
+                    // Add timestamps to object
+                    var time = new Date();
+                    json.timestamp_s = Math.floor(Date.now() / 1000) % (24 * 3600);
+                    json.timestamp_utc = Math.floor(Date.now() / 1000);
+                    json.timestamp_formatted = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+                    
+                    jsonArray = JSON.parse(localStorage.getItem('gizmodoJsonArray')) || [];
+                    jsonArray.push(json);
+                    localStorage.setItem('gizmodoJsonArray', JSON.stringify(jsonArray));
+
+                    dataset_toppages = json.data.stats.toppages;
+                    //for (i = 0; i < dataset_toppages.length; i++) {
+                    //    numVisitors[i] = dataset_toppages[i].visitors;
+                    //    var path = dataset_toppages[i].path.split("-");
+                    //    pageString[i] = path[path.length - 1];
+                    // }
+                    maxVisitors = d3.max(dataset_toppages, function (d) { return d.visitors } );
+
+                    // Clean canvas before updating
+                    d3.selectAll("svg > *").remove();
+                    
+                    // Draw rectangles
+                    var svgRectData = svg.selectAll("rect")
+                        .data(dataset_toppages)
+                        .enter()
+                        .append("rect");
+
+                    svgRectData.attr("x", function(d, i) {
+                            return i * (WIDTH0 / dataset_toppages.length);
+                        })
+                        .attr("y", function(d) {
+                            return scalefactor - (d.visitors / maxVisitors) * scalefactor; // SVG draws downwards from y
+                        })
+                        .attr("width", WIDTH0 / dataset_toppages.length - barPadding)
+                        .attr("height", function(d) {
+                            return (d.visitors / maxVisitors) * scalefactor;
+                        })
+                        .attr("fill", function(d, i) {
+                            return color(i);
+                        });
+
+                    // Add Numbers
+                    var svgNumText = svg.selectAll("text")
+                        .data(dataset_toppages)
+                        .enter()
+                        .append("text")
+                        .text(function(d) {
+                            return d.visitors;
+                        })
+                        .attr("x", function(d, i) {
+                            return i * (WIDTH0 / dataset_toppages.length) + 5;
+                        })
+                        .attr("y", function(d) {
+                            return scalefactor - (d.visitors / maxVisitors) * scalefactor + 15;
+                        })
+                        .attr("font-family", "Helvetica Neue")
+                        .attr("font-size", "12px")
+                        .attr("fill", "white");
+                    
+                    svg.selectAll()
+                        .data(dataset_toppages)
+                        .enter()
+                        .append("text")
+                        .text(function(d,i) {
+                            var path = dataset_toppages[i].path.split("-");
+                            if (path[path.length - 1] == "/") {
+                                return "Home"
+                            } else {
+                            return path[path.length - 1];
+                    }
+                        })
+//                        .attr("fill", function(d, i) {
+//                            return color(i);
+//                        })
+                        .attr("font-size", "10px")
+                        .attr("transform", function (d, i) {    // All transfomrations done under transform if introduced
+                            return "translate(" +   // Translate
+                                (i * (WIDTH0 / dataset_toppages.length) + 20) + "," + (HEIGHT0 - 105) + ") " +
+                                "rotate(70)"       // Then Rotate
+                        });
+                    
+                    // Add the text label for the x axis
+                    svg.append("text")
+                        .attr("transform", "translate(" + (WIDTH0 / 2) + " ," + (HEIGHT0 - 25) + ")")
+                        .style("text-anchor", "middle")
+                        .text("Page");
+                    
+                    
+                    // Line Graph
+                    initLineChart();
+                    
+                    // Pie Chart
+                    initPieChart();
+                    
+var dataset_platform_engaged = jsonArray[jsonArray.length - 1].data.stats.platform_engaged;                    
+var chart = c3.generate({
+    data: {
+        columns: [
+            ['Mobile', dataset_platform_engaged.m],
+            ['Desktop', dataset_platform_engaged.d],
+            ['Tablet', dataset_platform_engaged.t],
+        ],
+        type : 'pie',
+        onclick: function (d, i) { console.log("onclick", d, i); },
+        onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+        onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+    }
+});
+                    
+                });
+                
+            }
+		</script>
+    
+	</body>
+</html>

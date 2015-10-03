@@ -58,6 +58,9 @@ function initScatterChart() {
         },
         transition: {
             duration: 0
-        }
+        },
+        tooltip: {
+            show: false
+        },
     });
 }

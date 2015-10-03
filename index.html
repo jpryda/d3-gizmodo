@@ -110,7 +110,7 @@
         //Create SVG element and add to DOM
         var svg = d3.select("#bar1")
             .append("svg")
-            .attr("width", WIDTH0 + 20)
+            .attr("width", WIDTH0 + 20) //Add 20 padding so rotated text stays within svg
             .attr("height", HEIGHT0);
 
         localStorage.clear();

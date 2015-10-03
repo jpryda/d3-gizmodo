@@ -53,7 +53,7 @@ function initLineChart3() {
             height: HEIGHT0,
         },
         tooltip: {
-            show: false
+            show: true
         },
         transition: {
             duration: 0

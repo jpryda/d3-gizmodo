@@ -14,7 +14,7 @@ function initStackedBar() {
         data: {
             x: "x",
             columns: [
-                    ["x", 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 10.0, 15.0, 30.0],
+                    ["x", 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 10.0, 15.0, "30.0+"],
                     test3.concat(dataset_visits),
                     test4.concat(dataset_engaged_visits),
                     test5.concat(dataset_engaged_visits),

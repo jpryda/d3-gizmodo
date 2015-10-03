@@ -5,9 +5,12 @@ Spoon Task
 
 On a mac open terminal, cd to the unzipped folder and execute:
 
-'python SimpleAuthServer.py 8888 user:pass'
+'python SimpleAuthServer.py 8888'
 
-where you may specify a username/password to authenticate within the browser.
+and access through 
+  user: spoon
+  pass: university
+
 (Without requiring authentication 'python -m SimpleHTTPServer 8888' will do).
 
 2) Access the site through the specified port e.g. http://localhost:8888/index.html.  Refresh time is every 4s.

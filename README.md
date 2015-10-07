@@ -5,8 +5,9 @@ Spoon Task
 
 On a mac open terminal, cd to the unzipped folder run the Python web server.  E.g.
 
-  cd ~/Downloads/d3-gizmodo-master
-  ./python SimpleAuthServer.py 8888
+    cd ~/Downloads/d3-gizmodo-master
+  
+    ./python SimpleAuthServer.py 8888
   
 (Without authentication one can simply invoke 'python -m SimpleHTTPServer 8888' and navigate to the d3-gizmodo-master folder within the browser if necessary)
   

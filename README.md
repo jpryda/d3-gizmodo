@@ -13,7 +13,7 @@ On a mac open terminal, cd to the unzipped folder run the Python web server.  E.
   
 2) Access the site through the specified port (e.g. 8888 from above) at http://localhost:8888/index.html using the login information:
 
-  user: spoon
-  pass: university
+        user: spoon
+        pass: university
 
 Refresh time is every 4s.

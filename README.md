@@ -3,7 +3,7 @@ Spoon Task
 
 1) Start an http server
 
-On a mac open terminal, cd to the unzipped folder run the Python web server.  E.g.
+On a mac open terminal, cd to the unzipped folder run the PHP/Apache web server.  E.g.
 
     cd ~/Downloads/d3-gizmodo-master/webroot
   

@@ -1,5 +1,22 @@
-<!-- To start local HTTP server: python -m SimpleHTTPServer 8888  OR
-                                 python SimpleAuthServer.py 8888 user:pass -->
+<?php 
+    if (!session_id()) session_start();  // Must include session_start when READING back vars
+    if (!$_SESSION['loggedIn']){ 
+                header("Location: login.php");
+                die();
+        }
+
+    if(isset($_POST['unsubmit'])){
+        $_SESSION = array();
+        session_destroy();
+        header("Location: login.php");
+        die();
+    }
+
+/*
+The location of the $_SESSION variable storage is on the server, determined by the session.save_path config. However the *browser* session is identified by a session-id, which is stored at the client, usually as a cookie, and sent with each request. (PHPSESSID)
+*/
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -71,7 +88,13 @@
             </tr>        
     </table>
     <br>
-    <div align="center"> Metric data pulled from <a href="https://dashapi.chartbeat.com/live/quickstats/v4/?all_platforms=1&apikey=317a25eccba186e0f6b558f45214c0e7&host=gizmodo.com&loyalty=1&now_on=1&types=1">Chartbeat API</a></div>
+    <div align="center"> Metric data pulled from <a href="https://dashapi.chartbeat.com/live/quickstats/v4/?all_platforms=1&apikey=317a25eccba186e0f6b558f45214c0e7&host=gizmodo.com&loyalty=1&now_on=1&types=1">Chartbeat API</a>
+    
+    <form name="form" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+        <input type="submit" name="unsubmit" value="Logout" /></p>
+    </form>
+    
+    </div>
 
     
     
